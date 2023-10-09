@@ -1,0 +1,48 @@
+version: '3.7'
+
+services:  
+  chroma:
+    image: ghcr.io/chroma-core/chroma:latest
+    ports:
+      - 8000:8000
+    networks:
+      - backend
+
+  spark:
+    image: docker.io/bitnami/spark:3.5
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+      - SPARK_USER=spark
+    ports:
+      - '8080:8080'
+
+  spark-worker:
+    image: docker.io/bitnami/spark:3.5
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+      - SPARK_USER=spark
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    ports:
+      - 5000:5000
+    volumes:
+      - ${MLFLOW_PATH}:/mlflow
+    networks:
+      - backend
+    entrypoint: ["mlflow", "server", "--backend-store-uri", "file:///mlflow", "--default-artifact-root", "file:///mlflow", "--host", "0.0.0.0"]
+
+networks:
+  backend:
+    driver: bridge
