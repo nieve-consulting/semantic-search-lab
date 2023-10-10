@@ -163,4 +163,4 @@ chroma/
 embedding_model/
 mlflow/
 mlruns/
-spark-warehouse/
+spark/
