@@ -1,6 +1,6 @@
 version: "3.7"
-  
-services:  
+
+services:
   chroma:
     image: ghcr.io/chroma-core/chroma:latest
     ports:
@@ -39,11 +39,21 @@ services:
       - 5000:5000
     volumes:
       - type: bind
-        source: ${MLFLOW_PATH}
-        target: /data
+        source: ./mlruns
+        target: /mlflow/mlruns
     networks:
       - backend
-    command: ["mlflow", "server", "--backend-store-uri", "file:///data", "--default-artifact-root", "file:///data", "--host", "0.0.0.0"]
+    command:
+      [
+        "mlflow",
+        "server",
+        "--backend-store-uri",
+        "file:///mlflow/mlruns",
+        "--default-artifact-root",
+        "file:///mlflow/mlruns",
+        "--host",
+        "0.0.0.0",
+      ]
 
 networks:
   backend:
